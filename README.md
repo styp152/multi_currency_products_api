@@ -66,6 +66,8 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 - Versionado de API con prefijo `v1`
 - Rate limiting explicito para la API
 - Separacion de responsabilidades con clases `Action` y `Query`
+- `X-Request-Id` en respuestas para trazabilidad y debugging
+- Pipeline de CI con pruebas y code style en GitHub Actions
 
 ## Setup
 
@@ -118,5 +120,7 @@ php artisan test
 - Se usan claves foraneas y restriccion unica en `product_prices` para evitar duplicar precio por moneda dentro del mismo producto.
 - `GET /api/v1/products/{id}/prices` devuelve precios adicionales en `data` y el precio base en `base_price`, evitando mezclar dos origenes distintos dentro de la misma coleccion.
 - La API devuelve errores JSON consistentes para `404`, `422` y errores internos.
+- Las respuestas API incluyen `X-Request-Id` y los errores JSON exponen `request_id`.
 - Los listados devuelven metadatos de paginacion.
 - La API esta versionada en `/api/v1` y protegida con `throttle:api`.
+- El repositorio incluye CI en [`.github/workflows/ci.yml`](.github/workflows/ci.yml).

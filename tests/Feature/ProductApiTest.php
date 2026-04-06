@@ -201,9 +201,11 @@ class ProductApiTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonPath('code', 'validation_error')
+            ->assertHeader('X-Request-Id')
             ->assertJsonStructure([
                 'message',
                 'code',
+                'request_id',
                 'errors' => [
                     'name',
                     'description',
@@ -315,6 +317,7 @@ class ProductApiTest extends TestCase
             ->assertJsonPath('base_price.currency_id', $baseCurrency->id)
             ->assertJsonPath('base_price.price', 39.99)
             ->assertJsonPath('base_price.currency.name', 'USD')
+            ->assertHeader('X-Request-Id')
             ->assertJsonPath('meta.total', 1);
     }
 
@@ -326,5 +329,15 @@ class ProductApiTest extends TestCase
 
         $this->getJson("{$this->baseUrl}/products")
             ->assertStatus(429);
+    }
+
+    public function test_it_preserves_a_client_supplied_request_id(): void
+    {
+        $response = $this
+            ->withHeader('X-Request-Id', 'integration-test-request-id')
+            ->getJson("{$this->baseUrl}/products");
+
+        $response->assertOk()
+            ->assertHeader('X-Request-Id', 'integration-test-request-id');
     }
 }

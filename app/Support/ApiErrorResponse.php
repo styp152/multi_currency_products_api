@@ -15,6 +15,7 @@ class ApiErrorResponse
         $payload = [
             'message' => $message,
             'code' => $code ?? self::defaultCode($status),
+            'request_id' => request()?->attributes->get('request_id'),
         ];
 
         if ($errors !== null) {

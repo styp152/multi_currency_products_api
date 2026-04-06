@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\CreateProductAction;
+use App\Actions\DeleteProductAction;
+use App\Actions\UpdateProductAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListProductsRequest;
 use App\Http\Requests\StoreProductRequest;
@@ -19,6 +21,8 @@ class ProductController extends Controller
     public function __construct(
         protected ProductIndexQuery $productIndexQuery,
         protected CreateProductAction $createProductAction,
+        protected UpdateProductAction $updateProductAction,
+        protected DeleteProductAction $deleteProductAction,
     ) {}
 
     public function index(ListProductsRequest $request): AnonymousResourceCollection
@@ -49,7 +53,7 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
-        $product->update($request->validated());
+        $product = $this->updateProductAction->execute($product, $request->validated());
         $product->load(['baseCurrency', 'prices.currency']);
 
         return new ProductResource($product);
@@ -57,7 +61,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product): Response
     {
-        $product->delete();
+        $this->deleteProductAction->execute($product);
 
         return response()->noContent();
     }
