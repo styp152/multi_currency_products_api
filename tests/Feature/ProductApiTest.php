@@ -42,7 +42,10 @@ class ProductApiTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $product->id)
             ->assertJsonPath('data.0.base_currency.name', 'USD')
-            ->assertJsonPath('data.0.prices.0.currency.name', 'COP');
+            ->assertJsonPath('data.0.prices.0.is_base_price', true)
+            ->assertJsonPath('data.0.prices.0.currency.name', 'USD')
+            ->assertJsonPath('data.0.prices.1.currency.name', 'COP')
+            ->assertJsonPath('data.0.prices.1.is_base_price', false);
     }
 
     public function test_it_creates_a_product(): void
@@ -66,7 +69,10 @@ class ProductApiTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('data.name', 'Premium Coffee')
-            ->assertJsonPath('data.base_currency.name', 'USD');
+            ->assertJsonPath('data.base_currency.name', 'USD')
+            ->assertJsonPath('data.prices.0.price', 29.99)
+            ->assertJsonPath('data.prices.0.currency_id', $currency->id)
+            ->assertJsonPath('data.prices.0.is_base_price', true);
 
         $this->assertDatabaseHas('products', [
             'name' => 'Premium Coffee',
@@ -84,10 +90,13 @@ class ProductApiTest extends TestCase
         $response = $this->getJson("{$this->baseUrl}/products/{$product->id}");
 
         $response->assertOk()
-            ->assertJsonPath('data.id', $product->id);
+            ->assertJsonPath('data.id', $product->id)
+            ->assertJsonPath('data.prices.0.price', (float) $product->price)
+            ->assertJsonPath('data.prices.0.currency_id', $currency->id)
+            ->assertJsonPath('data.prices.0.is_base_price', true);
     }
 
-    public function test_it_includes_base_price_in_the_product_price_collection_contract(): void
+    public function test_it_includes_base_price_as_the_first_item_in_the_price_collection_contract(): void
     {
         $baseCurrency = Currency::factory()->create([
             'name' => 'USD',
@@ -101,9 +110,10 @@ class ProductApiTest extends TestCase
         $response = $this->getJson("{$this->baseUrl}/products/{$product->id}/prices");
 
         $response->assertOk()
-            ->assertJsonPath('base_price.product_id', $product->id)
-            ->assertJsonPath('base_price.price', 24.5)
-            ->assertJsonPath('base_price.currency.name', 'USD');
+            ->assertJsonPath('data.0.product_id', $product->id)
+            ->assertJsonPath('data.0.price', 24.5)
+            ->assertJsonPath('data.0.currency.name', 'USD')
+            ->assertJsonPath('data.0.is_base_price', true);
     }
 
     public function test_it_updates_a_product(): void
@@ -121,7 +131,10 @@ class ProductApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.name', 'New Name')
-            ->assertJsonPath('data.tax_cost', 15);
+            ->assertJsonPath('data.tax_cost', 15)
+            ->assertJsonPath('data.prices.0.price', (float) $product->fresh()->price)
+            ->assertJsonPath('data.prices.0.currency_id', $product->fresh()->currency_id)
+            ->assertJsonPath('data.prices.0.is_base_price', true);
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
@@ -153,8 +166,10 @@ class ProductApiTest extends TestCase
         $response = $this->getJson("{$this->baseUrl}/products/{$product->id}/prices");
 
         $response->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.price', 55.25);
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.is_base_price', true)
+            ->assertJsonPath('data.1.price', 55.25)
+            ->assertJsonPath('data.1.is_base_price', false);
     }
 
     public function test_it_creates_a_product_price_for_a_specific_currency(): void
@@ -362,11 +377,12 @@ class ProductApiTest extends TestCase
         $response = $this->getJson("{$this->baseUrl}/products/{$product->id}/prices?currency_id={$eur->id}&per_page=1");
 
         $response->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.currency.name', $eur->name)
-            ->assertJsonPath('base_price.currency_id', $baseCurrency->id)
-            ->assertJsonPath('base_price.price', 39.99)
-            ->assertJsonPath('base_price.currency.name', 'USD')
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.is_base_price', true)
+            ->assertJsonPath('data.0.currency_id', $baseCurrency->id)
+            ->assertJsonPath('data.0.price', 39.99)
+            ->assertJsonPath('data.1.currency.name', $eur->name)
+            ->assertJsonPath('data.1.is_base_price', false)
             ->assertHeader('X-Request-Id')
             ->assertJsonPath('meta.total', 1);
     }

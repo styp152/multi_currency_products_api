@@ -15,15 +15,14 @@ class ProductPriceCollection extends ResourceCollection
 
     public function toArray(Request $request): array
     {
-        return [
-            'data' => ProductPriceResource::collection($this->collection),
-        ];
-    }
+        $basePrice = (new BasePriceResource($this->product))->resolve($request);
+        $additionalPrices = ProductPriceResource::collection($this->collection)->resolve($request);
 
-    public function with(Request $request): array
-    {
         return [
-            'base_price' => (new BasePriceResource($this->product))->resolve($request),
+            'data' => [
+                $basePrice,
+                ...$additionalPrices,
+            ],
         ];
     }
 }

@@ -15,6 +15,7 @@ class ProductPriceResource extends JsonResource
             'currency_id' => $this->currency_id,
             'price' => (float) $this->price,
             'currency' => new CurrencyResource($this->whenLoaded('currency')),
+            'is_base_price' => false,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

@@ -31,8 +31,8 @@ Eso funciona para la prueba, pero introduce una asimetria: no existe una sola fu
 
 Para hacer explicito ese comportamiento sin romper el contrato del listado de precios adicionales:
 
-- `GET /api/v1/products/{id}/prices` mantiene los precios adicionales en `data`.
-- El precio base del producto se expone por separado en `base_price`.
+- `GET /api/v1/products/{id}/prices` devuelve el precio base y los precios adicionales dentro de la misma lista `data`.
+- El precio base usa el mismo shape de respuesta y se distingue con `is_base_price=true`.
 - La API rechaza intentos de duplicar exactamente el precio base dentro de `product_prices`.
 
 ## Reglas de negocio implementadas
