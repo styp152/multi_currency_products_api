@@ -6,11 +6,11 @@ use App\Actions\CreateProductPriceAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListProductPricesRequest;
 use App\Http\Requests\StoreProductPriceRequest;
+use App\Http\Resources\ProductPriceCollection;
 use App\Http\Resources\ProductPriceResource;
 use App\Models\Product;
 use App\Queries\ProductPriceIndexQuery;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductPriceController extends Controller
 {
@@ -19,7 +19,7 @@ class ProductPriceController extends Controller
         protected CreateProductPriceAction $createProductPriceAction,
     ) {}
 
-    public function index(ListProductPricesRequest $request, Product $product): AnonymousResourceCollection
+    public function index(ListProductPricesRequest $request, Product $product): ProductPriceCollection
     {
         $product->loadMissing('baseCurrency');
 
@@ -27,19 +27,7 @@ class ProductPriceController extends Controller
             ->execute($product, $request->validated())
             ->appends($request->query());
 
-        return ProductPriceResource::collection($prices)->additional([
-            'base_price' => [
-                'product_id' => $product->id,
-                'currency_id' => $product->currency_id,
-                'price' => (float) $product->price,
-                'currency' => [
-                    'id' => $product->baseCurrency?->id,
-                    'name' => $product->baseCurrency?->name,
-                    'symbol' => $product->baseCurrency?->symbol,
-                    'exchange_rate' => $product->baseCurrency ? (float) $product->baseCurrency->exchange_rate : null,
-                ],
-            ],
-        ]);
+        return new ProductPriceCollection($prices, $product);
     }
 
     public function store(StoreProductPriceRequest $request, Product $product): JsonResponse

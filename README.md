@@ -71,6 +71,7 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 - Proteccion de endpoints de escritura con `X-API-Key`
 - `X-Request-Id` en respuestas para trazabilidad y debugging
 - Pipeline de CI con pruebas y code style en GitHub Actions
+- Entorno reproducible con Docker y Docker Compose
 
 ## Setup
 
@@ -80,6 +81,12 @@ touch database/database.sqlite
 php artisan key:generate
 php artisan migrate --seed
 php artisan serve
+```
+
+Alternativa con Docker:
+
+```bash
+docker compose up --build
 ```
 
 Para proteger escrituras en local, configura una llave:
@@ -142,6 +149,7 @@ php artisan test
 
 - La API valida entrada con `FormRequest`.
 - La capa HTTP delega consultas y creacion a clases dedicadas para reducir acoplamiento en controladores.
+- La lectura de detalle de producto y la respuesta del listado de precios tambien estan encapsuladas en capas dedicadas.
 - Se usan claves foraneas y restriccion unica en `product_prices` para evitar duplicar precio por moneda dentro del mismo producto.
 - `GET /api/v1/products/{id}/prices` devuelve precios adicionales en `data` y el precio base en `base_price`, evitando mezclar dos origenes distintos dentro de la misma coleccion.
 - La API devuelve errores JSON consistentes para `404`, `422` y errores internos.
@@ -150,3 +158,4 @@ php artisan test
 - Los listados devuelven metadatos de paginacion.
 - La API esta versionada en `/api/v1` y protegida con `throttle:api`.
 - El repositorio incluye CI en [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+- El CI valida `composer.json`, revisa `route:list` y prueba `config:cache` como smoke checks adicionales.

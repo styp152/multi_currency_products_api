@@ -87,6 +87,25 @@ class ProductApiTest extends TestCase
             ->assertJsonPath('data.id', $product->id);
     }
 
+    public function test_it_includes_base_price_in_the_product_price_collection_contract(): void
+    {
+        $baseCurrency = Currency::factory()->create([
+            'name' => 'USD',
+            'symbol' => '$',
+        ]);
+        $product = Product::factory()->create([
+            'currency_id' => $baseCurrency->id,
+            'price' => 24.5,
+        ]);
+
+        $response = $this->getJson("{$this->baseUrl}/products/{$product->id}/prices");
+
+        $response->assertOk()
+            ->assertJsonPath('base_price.product_id', $product->id)
+            ->assertJsonPath('base_price.price', 24.5)
+            ->assertJsonPath('base_price.currency.name', 'USD');
+    }
+
     public function test_it_updates_a_product(): void
     {
         $currency = Currency::factory()->create();

@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Validate composer metadata
+        run: composer validate --strict
+
       - name: Prepare SQLite database
         run: |
           mkdir -p database
@@ -38,6 +41,17 @@ jobs:
 
       - name: Run migrations
         run: php artisan migrate --force
+
+      - name: Smoke check artisan bootstrap
+        run: php artisan about --only=environment
+
+      - name: Smoke check routes
+        run: php artisan route:list
+
+      - name: Smoke check config cache
+        run: |
+          php artisan config:cache
+          php artisan config:clear
 
       - name: Run code style checks
         run: ./vendor/bin/pint --test
