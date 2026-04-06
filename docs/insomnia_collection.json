@@ -1,0 +1,121 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-04-06T00:00:00.000Z",
+  "__export_source": "codex",
+  "resources": [
+    {
+      "_id": "wrk_multi_currency_products_api",
+      "_type": "workspace",
+      "name": "Multi Currency Products API",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_multi_currency_products_api",
+      "_type": "environment",
+      "parentId": "wrk_multi_currency_products_api",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://127.0.0.1:8000"
+      }
+    },
+    {
+      "_id": "fld_products",
+      "_type": "request_group",
+      "parentId": "wrk_multi_currency_products_api",
+      "name": "Products"
+    },
+    {
+      "_id": "fld_product_prices",
+      "_type": "request_group",
+      "parentId": "wrk_multi_currency_products_api",
+      "name": "Product Prices"
+    },
+    {
+      "_id": "req_list_products",
+      "_type": "request",
+      "parentId": "fld_products",
+      "name": "List Products",
+      "method": "GET",
+      "url": "{{ base_url }}/api/products"
+    },
+    {
+      "_id": "req_create_product",
+      "_type": "request",
+      "parentId": "fld_products",
+      "name": "Create Product",
+      "method": "POST",
+      "url": "{{ base_url }}/api/products",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Premium Coffee\",\n  \"description\": \"Single origin coffee beans.\",\n  \"price\": 29.99,\n  \"currency_id\": 1,\n  \"tax_cost\": 3.5,\n  \"manufacturing_cost\": 12.1\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_show_product",
+      "_type": "request",
+      "parentId": "fld_products",
+      "name": "Show Product",
+      "method": "GET",
+      "url": "{{ base_url }}/api/products/1"
+    },
+    {
+      "_id": "req_update_product",
+      "_type": "request",
+      "parentId": "fld_products",
+      "name": "Update Product",
+      "method": "PUT",
+      "url": "{{ base_url }}/api/products/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Premium Coffee Updated\",\n  \"tax_cost\": 4.2\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_delete_product",
+      "_type": "request",
+      "parentId": "fld_products",
+      "name": "Delete Product",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/products/1"
+    },
+    {
+      "_id": "req_list_product_prices",
+      "_type": "request",
+      "parentId": "fld_product_prices",
+      "name": "List Product Prices",
+      "method": "GET",
+      "url": "{{ base_url }}/api/products/1/prices"
+    },
+    {
+      "_id": "req_create_product_price",
+      "_type": "request",
+      "parentId": "fld_product_prices",
+      "name": "Create Product Price",
+      "method": "POST",
+      "url": "{{ base_url }}/api/products/1/prices",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"currency_id\": 2,\n  \"price\": 114900\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    }
+  ]
+}

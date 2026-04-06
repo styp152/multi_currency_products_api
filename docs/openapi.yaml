@@ -1,0 +1,280 @@
+openapi: 3.0.3
+info:
+  title: Multi Currency Products API
+  version: 1.0.0
+  description: API RESTful para gestionar productos y precios en multiples divisas.
+servers:
+  - url: http://127.0.0.1:8000
+tags:
+  - name: Products
+  - name: Product Prices
+paths:
+  /api/products:
+    get:
+      tags: [Products]
+      summary: Listar productos
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      tags: [Products]
+      summary: Crear producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '422':
+          description: Error de validacion
+  /api/products/{id}:
+    get:
+      tags: [Products]
+      summary: Obtener producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          description: Producto no encontrado
+    put:
+      tags: [Products]
+      summary: Actualizar producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateInput'
+      responses:
+        '200':
+          description: Producto actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '422':
+          description: Error de validacion
+    delete:
+      tags: [Products]
+      summary: Eliminar producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: Producto eliminado
+  /api/products/{id}/prices:
+    get:
+      tags: [Product Prices]
+      summary: Listar precios de un producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Lista de precios por moneda
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductPrice'
+    post:
+      tags: [Product Prices]
+      summary: Crear precio de producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPriceInput'
+      responses:
+        '201':
+          description: Precio creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductPrice'
+        '422':
+          description: Error de validacion
+components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  schemas:
+    Currency:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: USD
+        symbol:
+          type: string
+          example: $
+        exchange_rate:
+          type: number
+          format: float
+          example: 1
+    ProductPrice:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 10
+        currency_id:
+          type: integer
+          example: 2
+        price:
+          type: number
+          format: float
+          example: 99.9
+        currency:
+          $ref: '#/components/schemas/Currency'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: Premium Coffee
+        description:
+          type: string
+          example: Single origin coffee beans.
+        price:
+          type: number
+          format: float
+          example: 29.99
+        currency_id:
+          type: integer
+          example: 1
+        tax_cost:
+          type: number
+          format: float
+          example: 3.5
+        manufacturing_cost:
+          type: number
+          format: float
+          example: 12.1
+        base_currency:
+          $ref: '#/components/schemas/Currency'
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPrice'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ProductInput:
+      type: object
+      required: [name, description, price, currency_id, tax_cost, manufacturing_cost]
+      properties:
+        name:
+          type: string
+          example: Premium Coffee
+        description:
+          type: string
+          example: Single origin coffee beans.
+        price:
+          type: number
+          format: float
+          example: 29.99
+        currency_id:
+          type: integer
+          example: 1
+        tax_cost:
+          type: number
+          format: float
+          example: 3.5
+        manufacturing_cost:
+          type: number
+          format: float
+          example: 12.1
+    ProductUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        currency_id:
+          type: integer
+        tax_cost:
+          type: number
+          format: float
+        manufacturing_cost:
+          type: number
+          format: float
+    ProductPriceInput:
+      type: object
+      required: [currency_id, price]
+      properties:
+        currency_id:
+          type: integer
+          example: 2
+        price:
+          type: number
+          format: float
+          example: 114900
