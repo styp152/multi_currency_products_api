@@ -69,6 +69,8 @@ paths:
     post:
       tags: [Products]
       summary: Crear producto
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -116,6 +118,8 @@ paths:
     put:
       tags: [Products]
       summary: Actualizar producto
+      security:
+        - ApiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/ProductId'
       requestBody:
@@ -143,6 +147,8 @@ paths:
     delete:
       tags: [Products]
       summary: Eliminar producto
+      security:
+        - ApiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/ProductId'
       responses:
@@ -197,6 +203,8 @@ paths:
     post:
       tags: [Product Prices]
       summary: Crear precio de producto
+      security:
+        - ApiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/ProductId'
       requestBody:
@@ -222,6 +230,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiError'
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
   parameters:
     ProductId:
       name: id

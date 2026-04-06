@@ -3,11 +3,19 @@
 namespace App\Actions;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class CreateProductAction
 {
     public function execute(array $payload): Product
     {
-        return Product::query()->create($payload);
+        $product = Product::query()->create($payload);
+
+        Log::info('Product created.', [
+            'product_id' => $product->id,
+            'currency_id' => $product->currency_id,
+        ]);
+
+        return $product;
     }
 }

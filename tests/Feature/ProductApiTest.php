@@ -217,6 +217,37 @@ class ProductApiTest extends TestCase
             ]);
     }
 
+    public function test_it_rejects_write_operations_without_a_valid_api_key(): void
+    {
+        $currency = Currency::factory()->create();
+
+        $response = $this
+            ->withoutHeader('X-API-Key')
+            ->postJson("{$this->baseUrl}/products", [
+                'name' => 'Blocked Product',
+                'description' => 'Should not be created.',
+                'price' => 10,
+                'currency_id' => $currency->id,
+                'tax_cost' => 1,
+                'manufacturing_cost' => 2,
+            ]);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('code', 'unauthorized')
+            ->assertJsonPath('message', 'The provided API key is invalid.');
+    }
+
+    public function test_it_allows_read_operations_without_an_api_key(): void
+    {
+        Product::factory()->create();
+
+        $response = $this
+            ->withoutHeader('X-API-Key')
+            ->getJson("{$this->baseUrl}/products");
+
+        $response->assertOk();
+    }
+
     public function test_it_rejects_duplicate_price_currency_for_a_product(): void
     {
         $product = Product::factory()->create();

@@ -1,5 +1,7 @@
 # Multi Currency Products API
 
+[![CI](https://github.com/styp152/multi_currency_products_api/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/styp152/multi_currency_products_api/actions/workflows/ci.yml)
+
 API RESTful en Laravel para gestionar productos con precio base y precios en multiples divisas.
 
 ## Stack
@@ -66,6 +68,7 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 - Versionado de API con prefijo `v1`
 - Rate limiting explicito para la API
 - Separacion de responsabilidades con clases `Action` y `Query`
+- Proteccion de endpoints de escritura con `X-API-Key`
 - `X-Request-Id` en respuestas para trazabilidad y debugging
 - Pipeline de CI con pruebas y code style en GitHub Actions
 
@@ -79,6 +82,12 @@ php artisan migrate --seed
 php artisan serve
 ```
 
+Para proteger escrituras en local, configura una llave:
+
+```bash
+API_WRITE_KEY=your-secure-key
+```
+
 Base URL local:
 
 ```text
@@ -89,6 +98,22 @@ Ejemplo de listado con filtros:
 
 ```text
 GET /api/v1/products?search=Coffee&currency_id=1&min_price=10&max_price=100&sort_by=name&sort_direction=asc&per_page=10
+```
+
+Ejemplo de escritura autenticada:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/products \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secure-key" \
+  -d '{
+    "name": "Premium Coffee",
+    "description": "Single origin coffee beans.",
+    "price": 29.99,
+    "currency_id": 1,
+    "tax_cost": 3.5,
+    "manufacturing_cost": 12.1
+  }'
 ```
 
 ## Datos iniciales
@@ -120,6 +145,7 @@ php artisan test
 - Se usan claves foraneas y restriccion unica en `product_prices` para evitar duplicar precio por moneda dentro del mismo producto.
 - `GET /api/v1/products/{id}/prices` devuelve precios adicionales en `data` y el precio base en `base_price`, evitando mezclar dos origenes distintos dentro de la misma coleccion.
 - La API devuelve errores JSON consistentes para `404`, `422` y errores internos.
+- Las operaciones de escritura requieren `X-API-Key` cuando `API_WRITE_KEY` esta configurada.
 - Las respuestas API incluyen `X-Request-Id` y los errores JSON exponen `request_id`.
 - Los listados devuelven metadatos de paginacion.
 - La API esta versionada en `/api/v1` y protegida con `throttle:api`.

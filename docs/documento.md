@@ -14,6 +14,7 @@ Construir una API RESTful en Laravel para gestionar productos y sus precios en d
 - Se extrajo logica de consulta y escritura a clases `Query` y `Action`.
 - Se agrego `request_id` para trazabilidad de solicitudes.
 - Se incorporo CI con validacion automatica de estilo y pruebas.
+- Se protegieron operaciones de escritura con una API key configurable por entorno.
 
 ## Estructura
 
@@ -51,6 +52,7 @@ Para hacer explicito ese comportamiento sin romper el contrato del listado de pr
 - Filtro de precios por moneda en el endpoint de precios del producto.
 - Rate limiting por IP para la API.
 - Correlation ID por request mediante cabecera `X-Request-Id`.
+- Endpoints de escritura protegidos con cabecera `X-API-Key`.
 
 ## Seguridad aplicada
 
@@ -61,6 +63,7 @@ Para hacer explicito ese comportamiento sin romper el contrato del listado de pr
 - Manejo uniforme de errores `404`, `422` y `500` para la API.
 - Throttling de API con `RateLimiter`.
 - Trazabilidad basica con `request_id` en cabeceras y errores JSON.
+- Control simple de acceso a escrituras sin acoplar la prueba a paquetes externos.
 
 ## Pruebas
 
@@ -78,6 +81,7 @@ Se incluyen pruebas feature para:
 - Respuesta JSON para recursos no encontrados
 - Rate limiting
 - Propagacion de `request_id`
+- Seguridad de escrituras
 
 ## Mejoras siguientes para destacar
 
