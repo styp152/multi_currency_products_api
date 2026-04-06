@@ -34,8 +34,18 @@ class StoreProductPriceRequest extends FormRequest
             function (Validator $validator): void {
                 /** @var Product $product */
                 $product = $this->route('product');
+                $currencyId = (int) $this->input('currency_id');
+                $price = round((float) $this->input('price'), 2);
+                $basePrice = round((float) $product->price, 2);
 
-                if ((int) $this->input('currency_id') === (int) $product->currency_id) {
+                if ($currencyId === (int) $product->currency_id && $price === $basePrice) {
+                    $validator->errors()->add(
+                        'price',
+                        'The base product price already exists in the product record and must not be duplicated in additional prices.',
+                    );
+                }
+
+                if ($currencyId === (int) $product->currency_id) {
                     $validator->errors()->add(
                         'currency_id',
                         'An additional product price must use a currency different from the base product currency.',

@@ -255,6 +255,24 @@ class ProductApiTest extends TestCase
             ->assertJsonValidationErrors(['currency_id']);
     }
 
+    public function test_it_rejects_duplicating_the_exact_base_price_in_additional_prices(): void
+    {
+        $baseCurrency = Currency::factory()->create();
+        $product = Product::factory()->create([
+            'currency_id' => $baseCurrency->id,
+            'price' => 88.50,
+        ]);
+
+        $response = $this->postJson("{$this->baseUrl}/products/{$product->id}/prices", [
+            'currency_id' => $baseCurrency->id,
+            'price' => 88.50,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('code', 'validation_error')
+            ->assertJsonValidationErrors(['currency_id', 'price']);
+    }
+
     public function test_it_returns_json_when_a_product_is_not_found(): void
     {
         $response = $this->getJson("{$this->baseUrl}/products/999999");
@@ -266,7 +284,14 @@ class ProductApiTest extends TestCase
 
     public function test_it_filters_product_prices(): void
     {
-        $product = Product::factory()->create();
+        $baseCurrency = Currency::factory()->create([
+            'name' => 'USD',
+            'symbol' => '$',
+        ]);
+        $product = Product::factory()->create([
+            'currency_id' => $baseCurrency->id,
+            'price' => 39.99,
+        ]);
         $usd = Currency::factory()->create();
         $eur = Currency::factory()->create();
 
@@ -287,6 +312,9 @@ class ProductApiTest extends TestCase
         $response->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.currency.name', $eur->name)
+            ->assertJsonPath('base_price.currency_id', $baseCurrency->id)
+            ->assertJsonPath('base_price.price', 39.99)
+            ->assertJsonPath('base_price.currency.name', 'USD')
             ->assertJsonPath('meta.total', 1);
     }
 

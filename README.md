@@ -62,6 +62,7 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 - Filtro de precios por `currency_id`
 - Errores de API estandarizados en JSON
 - Validacion para impedir monedas duplicadas o igual a la moneda base del producto
+- El endpoint de precios expone el `base_price` por separado para reflejar el precio almacenado en `products`
 - Versionado de API con prefijo `v1`
 - Rate limiting explicito para la API
 - Separacion de responsabilidades con clases `Action` y `Query`
@@ -115,6 +116,7 @@ php artisan test
 - La API valida entrada con `FormRequest`.
 - La capa HTTP delega consultas y creacion a clases dedicadas para reducir acoplamiento en controladores.
 - Se usan claves foraneas y restriccion unica en `product_prices` para evitar duplicar precio por moneda dentro del mismo producto.
+- `GET /api/v1/products/{id}/prices` devuelve precios adicionales en `data` y el precio base en `base_price`, evitando mezclar dos origenes distintos dentro de la misma coleccion.
 - La API devuelve errores JSON consistentes para `404`, `422` y errores internos.
 - Los listados devuelven metadatos de paginacion.
 - La API esta versionada en `/api/v1` y protegida con `throttle:api`.

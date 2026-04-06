@@ -21,11 +21,25 @@ class ProductPriceController extends Controller
 
     public function index(ListProductPricesRequest $request, Product $product): AnonymousResourceCollection
     {
+        $product->loadMissing('baseCurrency');
+
         $prices = $this->productPriceIndexQuery
             ->execute($product, $request->validated())
             ->appends($request->query());
 
-        return ProductPriceResource::collection($prices);
+        return ProductPriceResource::collection($prices)->additional([
+            'base_price' => [
+                'product_id' => $product->id,
+                'currency_id' => $product->currency_id,
+                'price' => (float) $product->price,
+                'currency' => [
+                    'id' => $product->baseCurrency?->id,
+                    'name' => $product->baseCurrency?->name,
+                    'symbol' => $product->baseCurrency?->symbol,
+                    'exchange_rate' => $product->baseCurrency ? (float) $product->baseCurrency->exchange_rate : null,
+                ],
+            ],
+        ]);
     }
 
     public function store(StoreProductPriceRequest $request, Product $product): JsonResponse

@@ -180,6 +180,8 @@ paths:
               schema:
                 type: object
                 properties:
+                  base_price:
+                    $ref: '#/components/schemas/BasePrice'
                   data:
                     type: array
                     items:
@@ -283,6 +285,21 @@ components:
         updated_at:
           type: string
           format: date-time
+    BasePrice:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 10
+        currency_id:
+          type: integer
+          example: 1
+        price:
+          type: number
+          format: float
+          example: 29.99
+        currency:
+          $ref: '#/components/schemas/Currency'
     Product:
       type: object
       properties:
