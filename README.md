@@ -54,20 +54,35 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 - `GET /api/products/{id}/prices`
 - `POST /api/products/{id}/prices`
 
+## Capacidades adicionales
+
+- Paginacion en listados con `per_page`
+- Filtros de productos por `search`, `currency_id`, `min_price`, `max_price`
+- Ordenamiento de productos por `id`, `name`, `price`, `created_at`
+- Filtro de precios por `currency_id`
+- Errores de API estandarizados en JSON
+- Validacion para impedir monedas duplicadas o igual a la moneda base del producto
+
 ## Setup
 
 ```bash
 cp .env.example .env
 touch database/database.sqlite
-/opt/homebrew/bin/php artisan key:generate
-/opt/homebrew/bin/php artisan migrate --seed
-/opt/homebrew/bin/php artisan serve
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
 ```
 
 Base URL local:
 
 ```text
 http://127.0.0.1:8000
+```
+
+Ejemplo de listado con filtros:
+
+```text
+GET /api/products?search=Coffee&currency_id=1&min_price=10&max_price=100&sort_by=name&sort_direction=asc&per_page=10
 ```
 
 ## Datos iniciales
@@ -96,4 +111,6 @@ El seeder crea estas divisas:
 
 - La API valida entrada con `FormRequest`.
 - Se usan claves foraneas y restriccion unica en `product_prices` para evitar duplicar precio por moneda dentro del mismo producto.
-- El proyecto queda sin autenticacion porque no fue parte del enunciado. Si quieres destacar en la siguiente iteracion, lo siguiente natural es agregar auth, versionado, filtros, paginacion y generacion automatica de Swagger desde anotaciones o atributos.
+- La API devuelve errores JSON consistentes para `404`, `422` y errores internos.
+- Los listados devuelven metadatos de paginacion.
+- El proyecto queda sin autenticacion porque no fue parte del enunciado. Si quieres destacar aun mas, el siguiente paso natural es agregar auth, versionado y CI.

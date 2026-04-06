@@ -22,7 +22,17 @@ Construir una API RESTful en Laravel para gestionar productos y sus precios en d
 - Un producto debe tener nombre, descripcion, precio base, moneda base, costo de impuestos y costo de fabricacion.
 - Un producto puede tener multiples precios adicionales.
 - Un producto no puede tener dos registros de precio para la misma moneda.
+- Un precio adicional no puede usar la misma moneda base del producto.
 - Al eliminar un producto se eliminan sus precios asociados.
+
+## Capacidades de consulta
+
+- Busqueda de productos por texto en nombre y descripcion.
+- Filtro de productos por moneda base.
+- Filtro de productos por rango de precio.
+- Ordenamiento configurable.
+- Paginacion configurable.
+- Filtro de precios por moneda en el endpoint de precios del producto.
 
 ## Seguridad aplicada
 
@@ -30,6 +40,7 @@ Construir una API RESTful en Laravel para gestionar productos y sus precios en d
 - Restricciones de integridad con claves foraneas.
 - Restriccion unica compuesta en `product_prices`.
 - Respuesta JSON consistente sin exponer informacion innecesaria del modelo.
+- Manejo uniforme de errores `404`, `422` y `500` para la API.
 
 ## Pruebas
 
@@ -42,11 +53,12 @@ Se incluyen pruebas feature para:
 - Eliminacion de producto
 - Listado de precios por producto
 - Creacion de precio por moneda
+- Filtros y paginacion
+- Validaciones y errores de negocio
+- Respuesta JSON para recursos no encontrados
 
 ## Mejoras siguientes para destacar
 
 - Autenticacion con Sanctum
-- Paginacion, filtros y ordenamiento
-- Manejo global de errores con formato estandarizado
 - Generacion automatica de Swagger desde codigo
 - CI con pruebas y analisis estatico

@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreProductPriceRequest extends FormRequest
 {
@@ -23,6 +25,23 @@ class StoreProductPriceRequest extends FormRequest
                     ->where('product_id', $this->route('product')->id),
             ],
             'price' => ['required', 'numeric', 'min:0'],
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                /** @var Product $product */
+                $product = $this->route('product');
+
+                if ((int) $this->input('currency_id') === (int) $product->currency_id) {
+                    $validator->errors()->add(
+                        'currency_id',
+                        'An additional product price must use a currency different from the base product currency.',
+                    );
+                }
+            },
         ];
     }
 }

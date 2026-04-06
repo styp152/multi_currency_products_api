@@ -158,4 +158,139 @@ class ProductApiTest extends TestCase
             'currency_id' => $currency->id,
         ]);
     }
+
+    public function test_it_filters_and_paginates_products(): void
+    {
+        $usd = Currency::factory()->create([
+            'name' => 'USD',
+            'symbol' => '$',
+        ]);
+        $eur = Currency::factory()->create([
+            'name' => 'EUR',
+            'symbol' => 'EUR',
+        ]);
+
+        Product::factory()->create([
+            'name' => 'Alpha Coffee',
+            'description' => 'Filtered result',
+            'price' => 25,
+            'currency_id' => $usd->id,
+        ]);
+
+        Product::factory()->create([
+            'name' => 'Zulu Tea',
+            'description' => 'Should not appear',
+            'price' => 80,
+            'currency_id' => $eur->id,
+        ]);
+
+        $response = $this->getJson('/api/products?search=Coffee&currency_id='.$usd->id.'&sort_by=name&sort_direction=asc&per_page=1');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Alpha Coffee')
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_it_returns_validation_errors_when_creating_a_product(): void
+    {
+        $response = $this->postJson('/api/products', []);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('code', 'validation_error')
+            ->assertJsonStructure([
+                'message',
+                'code',
+                'errors' => [
+                    'name',
+                    'description',
+                    'price',
+                    'currency_id',
+                    'tax_cost',
+                    'manufacturing_cost',
+                ],
+            ]);
+    }
+
+    public function test_it_rejects_duplicate_price_currency_for_a_product(): void
+    {
+        $product = Product::factory()->create();
+        $currency = Currency::factory()->create();
+
+        ProductPrice::factory()->create([
+            'product_id' => $product->id,
+            'currency_id' => $currency->id,
+        ]);
+
+        $response = $this->postJson("/api/products/{$product->id}/prices", [
+            'currency_id' => $currency->id,
+            'price' => 77.10,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('code', 'validation_error')
+            ->assertJsonValidationErrors(['currency_id']);
+    }
+
+    public function test_it_rejects_using_the_product_base_currency_as_an_additional_price(): void
+    {
+        $baseCurrency = Currency::factory()->create([
+            'name' => 'USD',
+            'symbol' => '$',
+        ]);
+        $product = Product::factory()->create([
+            'currency_id' => $baseCurrency->id,
+        ]);
+
+        $response = $this->postJson("/api/products/{$product->id}/prices", [
+            'currency_id' => $baseCurrency->id,
+            'price' => 99.99,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('code', 'validation_error')
+            ->assertJsonValidationErrors(['currency_id']);
+    }
+
+    public function test_it_returns_json_when_a_product_is_not_found(): void
+    {
+        $response = $this->getJson('/api/products/999999');
+
+        $response->assertStatus(404)
+            ->assertJsonPath('code', 'resource_not_found')
+            ->assertJsonPath('message', 'The requested resource was not found.');
+    }
+
+    public function test_it_filters_product_prices(): void
+    {
+        $product = Product::factory()->create();
+        $usd = Currency::factory()->create([
+            'name' => 'USD',
+            'symbol' => '$',
+        ]);
+        $eur = Currency::factory()->create([
+            'name' => 'EUR',
+            'symbol' => 'EUR',
+        ]);
+
+        ProductPrice::factory()->create([
+            'product_id' => $product->id,
+            'currency_id' => $usd->id,
+            'price' => 40,
+        ]);
+
+        ProductPrice::factory()->create([
+            'product_id' => $product->id,
+            'currency_id' => $eur->id,
+            'price' => 41,
+        ]);
+
+        $response = $this->getJson("/api/products/{$product->id}/prices?currency_id={$eur->id}&per_page=1");
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.currency.name', 'EUR')
+            ->assertJsonPath('meta.total', 1);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListProductsRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
@@ -13,12 +14,17 @@ use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(ListProductsRequest $request): AnonymousResourceCollection
     {
         $products = Product::query()
             ->with(['baseCurrency', 'prices.currency'])
-            ->latest('id')
-            ->get();
+            ->filter($request->validated())
+            ->orderBy(
+                $request->validated('sort_by', 'id'),
+                $request->validated('sort_direction', 'desc'),
+            )
+            ->paginate($request->validated('per_page', 15))
+            ->appends($request->query());
 
         return ProductResource::collection($products);
     }
