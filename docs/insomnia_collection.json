@@ -37,7 +37,7 @@
       "parentId": "fld_products",
       "name": "List Products",
       "method": "GET",
-      "url": "{{ base_url }}/api/products"
+      "url": "{{ base_url }}/api/v1/products"
     },
     {
       "_id": "req_create_product",
@@ -45,7 +45,7 @@
       "parentId": "fld_products",
       "name": "Create Product",
       "method": "POST",
-      "url": "{{ base_url }}/api/products",
+      "url": "{{ base_url }}/api/v1/products",
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"Premium Coffee\",\n  \"description\": \"Single origin coffee beans.\",\n  \"price\": 29.99,\n  \"currency_id\": 1,\n  \"tax_cost\": 3.5,\n  \"manufacturing_cost\": 12.1\n}"
@@ -63,7 +63,7 @@
       "parentId": "fld_products",
       "name": "Show Product",
       "method": "GET",
-      "url": "{{ base_url }}/api/products/1"
+      "url": "{{ base_url }}/api/v1/products/1"
     },
     {
       "_id": "req_update_product",
@@ -71,7 +71,7 @@
       "parentId": "fld_products",
       "name": "Update Product",
       "method": "PUT",
-      "url": "{{ base_url }}/api/products/1",
+      "url": "{{ base_url }}/api/v1/products/1",
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"Premium Coffee Updated\",\n  \"tax_cost\": 4.2\n}"
@@ -89,7 +89,7 @@
       "parentId": "fld_products",
       "name": "Delete Product",
       "method": "DELETE",
-      "url": "{{ base_url }}/api/products/1"
+      "url": "{{ base_url }}/api/v1/products/1"
     },
     {
       "_id": "req_list_product_prices",
@@ -97,7 +97,7 @@
       "parentId": "fld_product_prices",
       "name": "List Product Prices",
       "method": "GET",
-      "url": "{{ base_url }}/api/products/1/prices"
+      "url": "{{ base_url }}/api/v1/products/1/prices"
     },
     {
       "_id": "req_create_product_price",
@@ -105,7 +105,7 @@
       "parentId": "fld_product_prices",
       "name": "Create Product Price",
       "method": "POST",
-      "url": "{{ base_url }}/api/products/1/prices",
+      "url": "{{ base_url }}/api/v1/products/1/prices",
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"currency_id\": 2,\n  \"price\": 114900\n}"

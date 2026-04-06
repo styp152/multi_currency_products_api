@@ -12,6 +12,8 @@ class ProductApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected string $baseUrl = '/api/v1';
+
     public function test_it_lists_products_with_base_currency_and_prices(): void
     {
         $baseCurrency = Currency::factory()->create([
@@ -34,7 +36,7 @@ class ProductApiTest extends TestCase
             'currency_id' => $secondaryCurrency->id,
         ]);
 
-        $response = $this->getJson('/api/products');
+        $response = $this->getJson("{$this->baseUrl}/products");
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')
@@ -60,7 +62,7 @@ class ProductApiTest extends TestCase
             'manufacturing_cost' => 12.10,
         ];
 
-        $response = $this->postJson('/api/products', $payload);
+        $response = $this->postJson("{$this->baseUrl}/products", $payload);
 
         $response->assertCreated()
             ->assertJsonPath('data.name', 'Premium Coffee')
@@ -79,7 +81,7 @@ class ProductApiTest extends TestCase
             'currency_id' => $currency->id,
         ]);
 
-        $response = $this->getJson("/api/products/{$product->id}");
+        $response = $this->getJson("{$this->baseUrl}/products/{$product->id}");
 
         $response->assertOk()
             ->assertJsonPath('data.id', $product->id);
@@ -93,7 +95,7 @@ class ProductApiTest extends TestCase
             'name' => 'Old Name',
         ]);
 
-        $response = $this->putJson("/api/products/{$product->id}", [
+        $response = $this->putJson("{$this->baseUrl}/products/{$product->id}", [
             'name' => 'New Name',
             'tax_cost' => 15,
         ]);
@@ -112,7 +114,7 @@ class ProductApiTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->deleteJson("/api/products/{$product->id}");
+        $response = $this->deleteJson("{$this->baseUrl}/products/{$product->id}");
 
         $response->assertNoContent();
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
@@ -129,7 +131,7 @@ class ProductApiTest extends TestCase
             'price' => 55.25,
         ]);
 
-        $response = $this->getJson("/api/products/{$product->id}/prices");
+        $response = $this->getJson("{$this->baseUrl}/products/{$product->id}/prices");
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')
@@ -144,7 +146,7 @@ class ProductApiTest extends TestCase
             'symbol' => 'EUR',
         ]);
 
-        $response = $this->postJson("/api/products/{$product->id}/prices", [
+        $response = $this->postJson("{$this->baseUrl}/products/{$product->id}/prices", [
             'currency_id' => $currency->id,
             'price' => 42.90,
         ]);
@@ -184,7 +186,7 @@ class ProductApiTest extends TestCase
             'currency_id' => $eur->id,
         ]);
 
-        $response = $this->getJson('/api/products?search=Coffee&currency_id='.$usd->id.'&sort_by=name&sort_direction=asc&per_page=1');
+        $response = $this->getJson("{$this->baseUrl}/products?search=Coffee&currency_id={$usd->id}&sort_by=name&sort_direction=asc&per_page=1");
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')
@@ -195,7 +197,7 @@ class ProductApiTest extends TestCase
 
     public function test_it_returns_validation_errors_when_creating_a_product(): void
     {
-        $response = $this->postJson('/api/products', []);
+        $response = $this->postJson("{$this->baseUrl}/products", []);
 
         $response->assertStatus(422)
             ->assertJsonPath('code', 'validation_error')
@@ -223,7 +225,7 @@ class ProductApiTest extends TestCase
             'currency_id' => $currency->id,
         ]);
 
-        $response = $this->postJson("/api/products/{$product->id}/prices", [
+        $response = $this->postJson("{$this->baseUrl}/products/{$product->id}/prices", [
             'currency_id' => $currency->id,
             'price' => 77.10,
         ]);
@@ -243,7 +245,7 @@ class ProductApiTest extends TestCase
             'currency_id' => $baseCurrency->id,
         ]);
 
-        $response = $this->postJson("/api/products/{$product->id}/prices", [
+        $response = $this->postJson("{$this->baseUrl}/products/{$product->id}/prices", [
             'currency_id' => $baseCurrency->id,
             'price' => 99.99,
         ]);
@@ -255,7 +257,7 @@ class ProductApiTest extends TestCase
 
     public function test_it_returns_json_when_a_product_is_not_found(): void
     {
-        $response = $this->getJson('/api/products/999999');
+        $response = $this->getJson("{$this->baseUrl}/products/999999");
 
         $response->assertStatus(404)
             ->assertJsonPath('code', 'resource_not_found')
@@ -265,14 +267,8 @@ class ProductApiTest extends TestCase
     public function test_it_filters_product_prices(): void
     {
         $product = Product::factory()->create();
-        $usd = Currency::factory()->create([
-            'name' => 'USD',
-            'symbol' => '$',
-        ]);
-        $eur = Currency::factory()->create([
-            'name' => 'EUR',
-            'symbol' => 'EUR',
-        ]);
+        $usd = Currency::factory()->create();
+        $eur = Currency::factory()->create();
 
         ProductPrice::factory()->create([
             'product_id' => $product->id,
@@ -286,11 +282,21 @@ class ProductApiTest extends TestCase
             'price' => 41,
         ]);
 
-        $response = $this->getJson("/api/products/{$product->id}/prices?currency_id={$eur->id}&per_page=1");
+        $response = $this->getJson("{$this->baseUrl}/products/{$product->id}/prices?currency_id={$eur->id}&per_page=1");
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.currency.name', 'EUR')
+            ->assertJsonPath('data.0.currency.name', $eur->name)
             ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_it_applies_rate_limiting_to_the_api(): void
+    {
+        for ($attempt = 0; $attempt < 60; $attempt++) {
+            $this->getJson("{$this->baseUrl}/products")->assertOk();
+        }
+
+        $this->getJson("{$this->baseUrl}/products")
+            ->assertStatus(429);
     }
 }

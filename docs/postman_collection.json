@@ -14,9 +14,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/products",
+              "raw": "{{baseUrl}}/api/v1/products",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products"]
+              "path": ["api", "v1", "products"]
             }
           }
         },
@@ -35,9 +35,9 @@
               "raw": "{\n  \"name\": \"Premium Coffee\",\n  \"description\": \"Single origin coffee beans.\",\n  \"price\": 29.99,\n  \"currency_id\": 1,\n  \"tax_cost\": 3.5,\n  \"manufacturing_cost\": 12.1\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/products",
+              "raw": "{{baseUrl}}/api/v1/products",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products"]
+              "path": ["api", "v1", "products"]
             }
           }
         },
@@ -47,9 +47,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/products/1",
+              "raw": "{{baseUrl}}/api/v1/products/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "1"]
+              "path": ["api", "v1", "products", "1"]
             }
           }
         },
@@ -68,9 +68,9 @@
               "raw": "{\n  \"name\": \"Premium Coffee Updated\",\n  \"tax_cost\": 4.2\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/products/1",
+              "raw": "{{baseUrl}}/api/v1/products/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "1"]
+              "path": ["api", "v1", "products", "1"]
             }
           }
         },
@@ -80,9 +80,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/products/1",
+              "raw": "{{baseUrl}}/api/v1/products/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "1"]
+              "path": ["api", "v1", "products", "1"]
             }
           }
         }
@@ -97,9 +97,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/products/1/prices",
+              "raw": "{{baseUrl}}/api/v1/products/1/prices",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "1", "prices"]
+              "path": ["api", "v1", "products", "1", "prices"]
             }
           }
         },
@@ -118,9 +118,9 @@
               "raw": "{\n  \"currency_id\": 2,\n  \"price\": 114900\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/products/1/prices",
+              "raw": "{{baseUrl}}/api/v1/products/1/prices",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "1", "prices"]
+              "path": ["api", "v1", "products", "1", "prices"]
             }
           }
         }

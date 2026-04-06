@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\CreateProductPriceAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListProductPricesRequest;
 use App\Http\Requests\StoreProductPriceRequest;
 use App\Http\Resources\ProductPriceResource;
 use App\Models\Product;
+use App\Queries\ProductPriceIndexQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductPriceController extends Controller
 {
+    public function __construct(
+        protected ProductPriceIndexQuery $productPriceIndexQuery,
+        protected CreateProductPriceAction $createProductPriceAction,
+    ) {}
+
     public function index(ListProductPricesRequest $request, Product $product): AnonymousResourceCollection
     {
-        $prices = $product->prices()
-            ->with('currency')
-            ->when(
-                $request->validated('currency_id'),
-                fn ($query, $currencyId) => $query->where('currency_id', $currencyId),
-            )
-            ->orderBy(
-                $request->validated('sort_by', 'id'),
-                $request->validated('sort_direction', 'desc'),
-            )
-            ->paginate($request->validated('per_page', 15))
+        $prices = $this->productPriceIndexQuery
+            ->execute($product, $request->validated())
             ->appends($request->query());
 
         return ProductPriceResource::collection($prices);
@@ -32,7 +30,7 @@ class ProductPriceController extends Controller
 
     public function store(StoreProductPriceRequest $request, Product $product): JsonResponse
     {
-        $price = $product->prices()->create($request->validated());
+        $price = $this->createProductPriceAction->execute($product, $request->validated());
         $price->load('currency');
 
         return (new ProductPriceResource($price))

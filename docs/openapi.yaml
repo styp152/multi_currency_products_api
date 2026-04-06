@@ -9,7 +9,7 @@ tags:
   - name: Products
   - name: Product Prices
 paths:
-  /api/products:
+  /api/v1/products:
     get:
       tags: [Products]
       summary: Listar productos
@@ -91,7 +91,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-  /api/products/{id}:
+  /api/v1/products/{id}:
     get:
       tags: [Products]
       summary: Obtener producto
@@ -148,7 +148,7 @@ paths:
       responses:
         '204':
           description: Producto eliminado
-  /api/products/{id}/prices:
+  /api/v1/products/{id}/prices:
     get:
       tags: [Product Prices]
       summary: Listar precios de un producto

@@ -10,6 +10,8 @@ Construir una API RESTful en Laravel para gestionar productos y sus precios en d
 - Se uso `Eloquent` con relaciones explicitas entre `currencies`, `products` y `product_prices`.
 - Se separo la validacion en `FormRequest` para mantener controladores delgados.
 - Se usan `Resources` para normalizar la salida JSON.
+- Se versiono la API con prefijo `/api/v1`.
+- Se extrajo logica de consulta y escritura a clases `Query` y `Action`.
 
 ## Estructura
 
@@ -33,6 +35,7 @@ Construir una API RESTful en Laravel para gestionar productos y sus precios en d
 - Ordenamiento configurable.
 - Paginacion configurable.
 - Filtro de precios por moneda en el endpoint de precios del producto.
+- Rate limiting por IP para la API.
 
 ## Seguridad aplicada
 
@@ -41,6 +44,7 @@ Construir una API RESTful en Laravel para gestionar productos y sus precios en d
 - Restriccion unica compuesta en `product_prices`.
 - Respuesta JSON consistente sin exponer informacion innecesaria del modelo.
 - Manejo uniforme de errores `404`, `422` y `500` para la API.
+- Throttling de API con `RateLimiter`.
 
 ## Pruebas
 
@@ -56,6 +60,7 @@ Se incluyen pruebas feature para:
 - Filtros y paginacion
 - Validaciones y errores de negocio
 - Respuesta JSON para recursos no encontrados
+- Rate limiting
 
 ## Mejoras siguientes para destacar
 

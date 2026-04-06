@@ -46,13 +46,13 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 
 ## Endpoints
 
-- `GET /api/products`
-- `POST /api/products`
-- `GET /api/products/{id}`
-- `PUT /api/products/{id}`
-- `DELETE /api/products/{id}`
-- `GET /api/products/{id}/prices`
-- `POST /api/products/{id}/prices`
+- `GET /api/v1/products`
+- `POST /api/v1/products`
+- `GET /api/v1/products/{id}`
+- `PUT /api/v1/products/{id}`
+- `DELETE /api/v1/products/{id}`
+- `GET /api/v1/products/{id}/prices`
+- `POST /api/v1/products/{id}/prices`
 
 ## Capacidades adicionales
 
@@ -62,6 +62,9 @@ API RESTful en Laravel para gestionar productos con precio base y precios en mul
 - Filtro de precios por `currency_id`
 - Errores de API estandarizados en JSON
 - Validacion para impedir monedas duplicadas o igual a la moneda base del producto
+- Versionado de API con prefijo `v1`
+- Rate limiting explicito para la API
+- Separacion de responsabilidades con clases `Action` y `Query`
 
 ## Setup
 
@@ -82,7 +85,7 @@ http://127.0.0.1:8000
 Ejemplo de listado con filtros:
 
 ```text
-GET /api/products?search=Coffee&currency_id=1&min_price=10&max_price=100&sort_by=name&sort_direction=asc&per_page=10
+GET /api/v1/products?search=Coffee&currency_id=1&min_price=10&max_price=100&sort_by=name&sort_direction=asc&per_page=10
 ```
 
 ## Datos iniciales
@@ -97,7 +100,7 @@ El seeder crea estas divisas:
 ## Ejecutar pruebas
 
 ```bash
-/opt/homebrew/bin/php artisan test
+php artisan test
 ```
 
 ## Documentacion entregable
@@ -110,7 +113,8 @@ El seeder crea estas divisas:
 ## Notas tecnicas
 
 - La API valida entrada con `FormRequest`.
+- La capa HTTP delega consultas y creacion a clases dedicadas para reducir acoplamiento en controladores.
 - Se usan claves foraneas y restriccion unica en `product_prices` para evitar duplicar precio por moneda dentro del mismo producto.
 - La API devuelve errores JSON consistentes para `404`, `422` y errores internos.
 - Los listados devuelven metadatos de paginacion.
-- El proyecto queda sin autenticacion porque no fue parte del enunciado. Si quieres destacar aun mas, el siguiente paso natural es agregar auth, versionado y CI.
+- La API esta versionada en `/api/v1` y protegida con `throttle:api`.

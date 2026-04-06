@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\CreateProductAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListProductsRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Queries\ProductIndexQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        protected ProductIndexQuery $productIndexQuery,
+        protected CreateProductAction $createProductAction,
+    ) {}
+
     public function index(ListProductsRequest $request): AnonymousResourceCollection
     {
-        $products = Product::query()
-            ->with(['baseCurrency', 'prices.currency'])
-            ->filter($request->validated())
-            ->orderBy(
-                $request->validated('sort_by', 'id'),
-                $request->validated('sort_direction', 'desc'),
-            )
-            ->paginate($request->validated('per_page', 15))
+        $products = $this->productIndexQuery
+            ->execute($request->validated())
             ->appends($request->query());
 
         return ProductResource::collection($products);
@@ -31,7 +32,7 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = Product::query()->create($request->validated());
+        $product = $this->createProductAction->execute($request->validated());
         $product->load(['baseCurrency', 'prices.currency']);
 
         return (new ProductResource($product))
