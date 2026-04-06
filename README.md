@@ -89,6 +89,11 @@ Alternativa con Docker:
 docker compose up --build
 ```
 
+Al levantar con Docker, el contenedor ejecuta automaticamente:
+
+- `php artisan migrate --seed --force`
+- `php artisan serve --host=0.0.0.0 --port=8000`
+
 Para proteger escrituras en local, configura una llave:
 
 ```bash
